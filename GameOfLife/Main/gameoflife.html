@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multicolored Hexagonal Game of Life</title>
+    <link rel="stylesheet" href="gameoflife.css">
+</head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<body>
+
+    <header>Multi-colored Hexagonal Game of Life</header>
+
+    <div class="container">
+
+        <div class="counters">
+            <h3 id="generation_count">Generation: 0</h3>
+            <h3 id="alive_ratio_count">Alive Ratio: 0%</h3>
+        </div>
+
+        <canvas id="game_board"></canvas>
+
+        <div class="controller">
+            <div class="buttons">
+                <button id="play_btn">Play</button>
+                <button id="reset_btn">Reset</button>
+            </div>
+            <div class="speed_slider">
+                <label for="trans_speed">Speed:</label>
+                <input type="range" id="trans_speed" min="50" max="1000" step="50" value="500"><br>
+                (faster-slower)
+            </div>
+        </div>
+
+        <details class="description">
+            <summary>Rules for this Game of Life</summary>
+            <table id="rules">
+                <tr>
+                    <th>ALIVE<br>(BORN)</th>
+                    <td>A dead cell becomes alive if it has exactly 3 live neighbours.</td>
+                </tr>
+                <tr>
+                    <th>SURVIVAL</th>
+                    <td>A live cell stays alive if it has 2 or 3 live neighbours.</td>
+                </tr>
+                <tr>
+                    <th>DEAD</th>
+                    <td>A live cell dies if it has fewer than 2 live neighbours (UNDERPOPULATION) or more than 3 live neighbours (OVERPOPULATION).</td>
+                </tr>
+                <tr>
+                    <th>+Additional Rules</th>
+                    <td>If the number of color is the same with the other color on the same cell, then the color which is close to black (#000) is stronger (DOMINANT).</td>
+                </tr>
+                <tr>
+                    <th>The color RANK on this board</th>
+                    <td>
+                        1. <span style="color:#FA8072">SALMON (#FA8072)</span><br>
+                        2. <span style="color:#DDA0DD;">PLUM (#DDA0DD)</span><br>
+                        3. <span style="color:#7FFFD4;">AQUAMARINE (#7FFFD4)</span><br>
+                        4. <span style="color:#FFE4C4;">BISQUE (#FFE4C4)</span>
+                    </td>
+                </tr>
+            </table>
+        </details>
+        <canvas id="statistics" style="margin: 0 0 20px;"></canvas>
+    </div>
+
+    <footer>
+        &copy; 2025 Mayu Watanabe
+    </footer>
+
+    <script src="gameoflife.js"></script>
+
+</body>
+</html>

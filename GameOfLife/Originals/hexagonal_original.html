@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hexagonal</title>
+  <link rel="stylesheet" href="gameoflife.css">
+</head>
+<body>
+  <header>Hexagonal Game of Life</header>
+  <div class="container">
+    <div class="counters">
+        <h3 id="generation_count">Generation: 0</h3>
+        <h3 id="alive_ratio_count">Alive Ratio: 0%</h3>
+    </div>
+    <canvas id="game_board"></canvas>
+    <div class="controller">
+        <button id="play_btn">Play</button>
+        <button id="reset_btn">Reset</button>
+        <div class="speed_slider">
+            <label for="trans_speed">Speed:</label>
+            <input type="range" id="trans_speed" min="100" max="1000" step="50" value="500"><br>
+            (faster-slower)
+        </div>
+    </div>
+  </div>
+  <footer>&copy; 2025 Mayu Watanabe</footer>
+
+  <script>
+    const canvas = document.getElementById("game_board");
+    const ctx = canvas.getContext("2d");
+    canvas.width = 500;
+    canvas.height = 500;
+
+    const hexRadius = 20;
+    const aliveColor = "black";
+    const highlightColor = "lightsalmon";
+    const rules = { B: [3], S: [2, 3], D: [0, 1, 4, 5, 6, 7, 8] };
+
+    const rows = Math.floor(canvas.height / hexRadius);
+    const cols = Math.floor(canvas.width / hexRadius);
+
+    let grid = createHexGrid(rows, cols);
+
+    function createHexGrid(rows, cols) {
+        const grid = [];
+        for (let i = 0; i < rows; i++) {
+            const row = [];
+            for (let j = 0; j < cols; j++) {
+                row.push({ alive: Math.random() > 0.99 });
+            }
+            grid.push(row);
+        }
+        return grid;
+    }
+
+    function drawHexGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const x = j * hexRadius * Math.sqrt(3) + (i % 2 == 1 ? hexRadius * Math.sqrt(3) / 2 : 0);
+                const y = i * hexRadius * 1.5;
+                drawHexagon(x, y, hexRadius, grid[i][j].alive ? aliveColor : "white");
+            }
+        }
+    }
+
+    function drawHexagon(x, y, radius, color) {
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+            const angle = Math.PI / 3 * i - Math.PI / 6;
+            const xi = x + radius * Math.cos(angle);
+            const yi = y + radius * Math.sin(angle);
+            if (i === 0) ctx.moveTo(xi, yi);
+            else ctx.lineTo(xi, yi);
+        }
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = "black";
+        ctx.stroke();
+    }
+
+    function highlightNeighbors() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawHexGrid();
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (grid[i][j].alive) {
+                    getNeighbors(i, j).forEach(([r, c]) => {
+                        if (r >= 0 && r < rows && c >= 0 && c < cols && !grid[r][c].alive) {
+                            const x = c * hexRadius * Math.sqrt(3) + (r % 2 == 1 ? hexRadius * Math.sqrt(3) / 2 : 0);
+                            const y = r * hexRadius * 1.5;
+                            drawHexagon(x, y, hexRadius, highlightColor);
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+
+    function getNeighbors(r, c) {
+        const evenRowOffsets = [
+        [-1, -1], [-1, 0],
+        [0, -1], [0, 1],
+        [1, -1], [1, 0],
+        [-2, 0], [2, 0]
+    ];
+    const oddRowOffsets = [
+        [-1, 0], [-1, 1],
+        [0, -1], [0, 1],
+        [1, 0], [1, 1],
+        [-2, 0], [2, 0]
+    ];
+        return (r % 2 === 0 ? evenRowOffsets : oddRowOffsets).map(([dr, dc]) => [r + dr, c + dc]);
+    }
+
+    function nextGeneration() {
+        const newGrid = grid.map(row => row.map(cell => ({ ...cell })));
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const aliveNeighbors = getNeighbors(r, c).filter(([nr, nc]) =>
+                    nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc].alive
+                ).length;
+
+                if (grid[r][c].alive) {
+                    newGrid[r][c].alive = rules.S.includes(aliveNeighbors);
+                } else {
+                    newGrid[r][c].alive = rules.B.includes(aliveNeighbors);
+                }
+            }
+        }
+
+        grid = newGrid;
+        generationCount++;
+        aliveRatioCalc();
+        counters();
+        drawHexGrid();
+        highlightNeighbors();
+    }
+
+    let generationCount = 0;
+    let aliveRatio = 0;
+
+    function counters() {
+        document.getElementById("generation_count").textContent = `Generation: ${generationCount}`;
+        document.getElementById("alive_ratio_count").textContent = `Alive Ratio: ${aliveRatio.toFixed(0)}%`;
+    }
+
+    function aliveRatioCalc() {
+        let aliveCells = 0;
+        let totalCells = rows * cols;
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (grid[r][c].alive) {
+                    aliveCells++;
+                }
+            }
+        }
+        aliveRatio = (aliveCells / totalCells) * 100;
+    }
+
+
+    function playGame() {
+        const playButton = document.getElementById("play_btn");
+        if (!window.transitionInterval) {
+            startGame();
+            playButton.textContent = "Pause";
+        } else {
+            stopGame();
+            playButton.textContent = "Play";
+        }
+    }
+
+    function startGame() {
+        const transitionSpeed = document.getElementById("trans_speed").value;
+        window.transitionInterval = setInterval(nextGeneration, transitionSpeed);
+    }
+
+    function stopGame() {
+        clearInterval(window.transitionInterval);
+        window.transitionInterval = null;
+    }
+
+    function init() {
+        stopGame();
+        generationCount = 0;
+        grid = createHexGrid(rows, cols);
+        aliveRatioCalc();
+        counters();
+        drawHexGrid();
+        highlightNeighbors();
+        document.getElementById("play_btn").textContent = "Play";
+    }
+
+    init();
+
+    document.getElementById("play_btn").addEventListener("click", playGame);
+    document.getElementById("reset_btn").addEventListener("click", init);
+    document.getElementById("trans_speed").addEventListener("input", function() {
+        if (window.transitionInterval) {
+            clearInterval(window.transitionInterval);
+            startGame();
+        }
+    });
+  </script>
+</body>
+</html>

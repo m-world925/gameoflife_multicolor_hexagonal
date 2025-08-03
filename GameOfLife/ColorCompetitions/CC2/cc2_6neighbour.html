@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2 ColorWar</title>
+    <link rel="stylesheet" href="../color_competition.css">
+</head>
+<body>
+
+    <header>Color Competition 2 with 6 neighbors</header>
+
+    <div class="container">
+
+        <div class="counters">
+            <h3 id="generation_count">Generation: 0</h3>
+        </div>
+
+        <canvas id="game_board"></canvas>
+
+        <div class="controller">
+            <div class="buttons">
+                <button id="play_btn">Play</button>
+                <button id="reset_btn">Reset</button>
+            </div>
+            <div class="speed_slider">
+                <label for="trans_speed">Speed:</label>
+                <input type="range" id="trans_speed" min="50" max="1000" step="50" value="500"><br>
+                (faster-slower)
+            </div>
+        </div>
+
+        <div class="description">
+            <h3>The Power Balance of the colors</h3>
+            <table id="rules">
+                <tr>
+                    <th>vs.</th>
+                    <th>SALMON</th>
+                    <th>BISQUE</th>
+                    <th>AQUAMARINE</th>
+                    <th>PLUM</th>
+                </tr>
+                <tr class="salmon">
+                    <th>SALMON</th>
+                    <td>-</td>
+                    <td>LOSE</td>
+                    <td>WIN</td>
+                    <td>DRAW</td>
+                </tr>
+                <tr class="bisque">
+                    <th>BISQUE</th>
+                    <td>WIN</td>
+                    <td>-</td>
+                    <td>DRAW</td>
+                    <td>LOSE</td>
+                </tr>
+                <tr class="aquamarine">
+                    <th>AQUAMARINE</th>
+                    <td>LOSE</td>
+                    <td>DRAW</td>
+                    <td>-</td>
+                    <td>WIN</td>
+                </tr>
+                <tr class="plum">
+                    <th>PLUM</th>
+                    <td>DRAW</td>
+                    <td>WIN</td>
+                    <td>LOSE</td>
+                    <td>-</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 Mayu Watanabe
+    </footer>
+
+    <script src="cc2_6.js"></script>
+
+</body>
+</html>

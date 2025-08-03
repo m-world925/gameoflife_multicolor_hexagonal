@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Color</title>
+  <link rel="stylesheet" href="gameoflife.css">
+</head>
+<body>
+  <header>Multi-colored Game of Life</header>
+  <div class="container">
+    <canvas id="game_board"></canvas>
+    <div class="controller">
+        <button id="play_btn">Play</button>
+        <button id="reset_btn">Reset</button>
+        <div class="speed_slider">
+            <label for="trans_speed">Speed:</label>
+            <input type="range" id="trans_speed" min="100" max="1000" step="50" value="500"><br>
+            (faster-slower)
+        </div>
+    </div>
+  </div>
+  <footer></footer>
+
+  <script>
+    const canvas = document.getElementById("game_board");
+    const ctx = canvas.getContext("2d");
+    canvas.width = 500;
+    canvas.height = 500;
+
+    const cellSize = 20;
+    const colors = ["#FA8072", "#FFE4C4", "#7FFFD4", "#DDA0DD"];
+    const rules = { B: [3], S: [2, 3], D: [0, 1, 4, 5, 6, 7, 8] };
+
+    const rows = Math.floor(canvas.height / cellSize);
+    const cols = Math.floor(canvas.width / cellSize);
+
+    let grid = createGrid();
+
+    function createGrid() {
+      const arr = [];
+      for (let r = 0; r < rows; r++) {
+        arr[r] = [];
+        for (let c = 0; c < cols; c++) {
+          arr[r][c] = Math.random() > 0.5 ? 1 : 0;
+        }
+      }
+      return arr;
+    }
+
+    function drawGrid() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (grid[r][c] === 1) {
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        ctx.fillStyle = randomColor;
+      } else {
+        ctx.fillStyle = "#fff";
+      }
+
+      ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+      ctx.strokeStyle = "#ccc";
+      ctx.strokeRect(c * cellSize, r * cellSize, cellSize, cellSize);
+    }
+  }
+}
+
+
+    function countNeighbors(r, c) {
+      let count = 0;
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          const nr = r + dr;
+          const nc = c + dc;
+          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+            count += grid[nr][nc];
+          }
+        }
+      }
+      return count;
+    }
+
+    function nextGeneration() {
+  const newGrid = [];
+  for (let r = 0; r < rows; r++) {
+    newGrid[r] = [];
+    for (let c = 0; c < cols; c++) {
+      const neighbors = countNeighbors(r, c);
+      if (grid[r][c] === 1) {
+        newGrid[r][c] = (neighbors === 2 || neighbors === 3) ? 1 : 0;
+      } else {
+        newGrid[r][c] = (neighbors === 3) ? 1 : 0;
+      }
+    }
+  }
+  grid = newGrid;
+  drawGrid();
+}
+
+
+    function playGame() {
+      const playButton = document.getElementById("play_btn");
+      if (!window.transitionInterval) {
+        startGame();
+        playButton.textContent = "Pause";
+      } else {
+        stopGame();
+        playButton.textContent = "Play";
+      }
+    }
+
+    function startGame() {
+      const speed = document.getElementById("trans_speed").value;
+      window.transitionInterval = setInterval(nextGeneration, speed);
+    }
+
+    function stopGame() {
+      clearInterval(window.transitionInterval);
+      window.transitionInterval = null;
+    }
+
+    function init() {
+      stopGame();
+      grid = createGrid();
+      drawGrid();
+      document.getElementById("play_btn").textContent = "Play";
+    }
+
+    init();
+
+    document.getElementById("play_btn").addEventListener("click", playGame);
+    document.getElementById("reset_btn").addEventListener("click", init);
+    document.getElementById("trans_speed").addEventListener("input", function () {
+      if (window.transitionInterval) {
+        clearInterval(window.transitionInterval);
+        startGame();
+      }
+    });
+  </script>
+</body>
+</html>

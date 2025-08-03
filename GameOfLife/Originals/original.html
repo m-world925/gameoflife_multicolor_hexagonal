@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Original</title>
+  <link rel="stylesheet" href="gameoflife.css">
+</head>
+<body>
+  <header>Original Conway's Game of Life</header>
+  <div class="container">
+    <canvas id="game_board"></canvas>
+    <div class="controller">
+        <button id="play_btn">Play</button>
+        <button id="reset_btn">Reset</button>
+        <div class="speed_slider">
+            <label for="trans_speed">Speed:</label>
+            <input type="range" id="trans_speed" min="100" max="1000" step="50" value="500"><br>
+            (faster-slower)
+        </div>
+    </div>
+  </div>
+  <footer></footer>
+
+  <script>
+    const canvas = document.getElementById("game_board");
+    const ctx = canvas.getContext("2d");
+    canvas.width = 500;
+    canvas.height = 500;
+
+    const cellSize = 20;
+    const aliveColor = "black";
+    const highlightColor = "lightsalmon";
+
+    const rows = Math.floor(canvas.height / cellSize);
+    const cols = Math.floor(canvas.width / cellSize);
+
+    let grid = createGrid();
+
+    function createGrid() {
+        return Array.from({ length: rows }, () =>
+            Array.from({ length: cols }, () => (Math.random() > 0.8 ? 1 : 0))
+        );
+    }
+
+    function drawGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                ctx.fillStyle = grid[r][c] ? aliveColor : "white";
+                ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+                ctx.strokeStyle = "gray";
+                ctx.strokeRect(c * cellSize, r * cellSize, cellSize, cellSize);
+            }
+        }
+    }
+
+    function getNeighbors(r, c) {
+        const offsets = [
+            [-1, -1], [-1, 0], [-1, 1],
+            [0, -1], [0, 1],
+            [1, -1], [1, 0], [1, 1]
+        ];
+        return offsets
+            .map(([dr, dc]) => [r + dr, c + dc])
+            .filter(([nr, nc]) => nr >= 0 && nr < rows && nc >= 0 && nc < cols);
+    }
+
+    function highlightNeighbors() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid();
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (grid[r][c] === 1) {
+                    getNeighbors(r, c).forEach(([nr, nc]) => {
+                        if (grid[nr][nc] === 0) {
+                            ctx.fillStyle = highlightColor;
+                            ctx.fillRect(nc * cellSize, nr * cellSize, cellSize, cellSize);
+                            ctx.strokeStyle = "gray";
+                            ctx.strokeRect(nc * cellSize, nr * cellSize, cellSize, cellSize);
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    function countNeighbors(r, c) {
+        return getNeighbors(r, c).reduce((count, [nr, nc]) => count + grid[nr][nc], 0);
+    }
+
+    function nextGeneration() {
+        const newGrid = grid.map((row, r) =>
+            row.map((cell, c) => {
+                const aliveNeighbors = countNeighbors(r, c);
+                return cell ? (aliveNeighbors === 2 || aliveNeighbors === 3 ? 1 : 0) : (aliveNeighbors === 3 ? 1 : 0);
+            })
+        );
+        grid = newGrid;
+        drawGrid();
+        highlightNeighbors();
+    }
+
+    function playGame() {
+        const playButton = document.getElementById("play_btn");
+        if (!window.transitionInterval) {
+            startGame();
+            playButton.textContent = "Pause";
+        } else {
+            stopGame();
+            playButton.textContent = "Play";
+        }
+    }
+
+    function startGame() {
+        const speed = document.getElementById("trans_speed").value;
+        window.transitionInterval = setInterval(nextGeneration, speed);
+    }
+
+    function stopGame() {
+        clearInterval(window.transitionInterval);
+        window.transitionInterval = null;
+    }
+
+    function init() {
+        stopGame();
+        grid = createGrid();
+        drawGrid();
+        highlightNeighbors();
+        document.getElementById("play_btn").textContent = "Play";
+    }
+
+    init();
+
+    document.getElementById("play_btn").addEventListener("click", playGame);
+    document.getElementById("reset_btn").addEventListener("click", init);
+    document.getElementById("trans_speed").addEventListener("input", function () {
+        if (window.transitionInterval) {
+            clearInterval(window.transitionInterval);
+            startGame();
+        }
+    });
+
+</script>
+
+</body>
+</html>

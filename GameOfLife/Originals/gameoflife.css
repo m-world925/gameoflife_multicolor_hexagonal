@@ -1,0 +1,123 @@
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+header, footer {
+    width: 100%;
+    height: 80px;
+    padding: 20px;
+    font-size: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFEBCD;
+    background-color: salmon;
+}
+
+.container {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #55B6B9;
+}
+
+.counters {
+    display: flex;
+    flex-direction: row;
+    color: #FFEBCD;
+}
+#generation_count, #alive_ratio_count {
+    padding: 10px;
+    margin: 0 10px;
+    border-radius: 30px;
+}
+
+canvas {
+    width: 100%;
+    height: auto;
+    max-width: 600px;
+    max-height: 600px;
+    margin: 0 auto;
+    display: block;
+    border: 1px solid #FFEBCD;
+    /* border-radius: 50px; */
+}
+
+.controller {
+    padding: 5px;
+    margin: 10px;
+    text-align: center;
+}
+button {
+    height: 55px;
+    font-size: 1em;
+    cursor: grab;
+    border: 1px solid #FFEBCD;
+    border-radius: 50px;
+}
+#play_btn {
+    width: 60%;
+    background-color: aquamarine;
+}
+#play_btn:active {
+    background-color: royalblue;
+}
+#reset_btn {
+    width: 30%;
+    background-color: lightpink;
+}
+#reset_btn:active {
+    background-color: salmon;
+}
+.speed_slider {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #FFEBCD;
+    border-radius: 50px;
+    background-color: lemonchiffon;
+}
+#trans_speed {
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: -webkit-grab;
+    cursor: grab;
+    user-select: none;
+    border: 1px solid #FFEBCD;
+    border-radius: 50px;
+    background-color: aquamarine;
+}
+#trans_speed::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    -webkit-appearance: none;
+    border-radius: 50px;
+    background-color: pink;
+}
+
+.description {
+    width: 100%;
+    max-width: 800px;
+    padding: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid #FFEBCD;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    height: 50px;
+    border: 1px dotted #FFEBCD;
+}
+
+footer {
+    font-size: 1em;
+}
